@@ -1,0 +1,13 @@
+diff --git a/src/checkout.ts b/src/checkout.ts
+--- a/src/checkout.ts
++++ b/src/checkout.ts
+@@ -1,7 +1,11 @@
+ export async function checkout(productId: string, quantity: number) {
++  const product = await db.product.findUnique({ where: { id: productId } });
++  if (!product || product.stock < quantity) {
++    throw new Error("Insufficient stock");
++  }
++  await db.product.update({ where: { id: productId }, data: { stock: product.stock - quantity } });
++  await createOrder(productId, quantity);
+   return { success: true };
+ }
